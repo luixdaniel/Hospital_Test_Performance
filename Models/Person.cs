@@ -1,5 +1,9 @@
 namespace Hospital_Test_Performance.Models
 {
+    /// <summary>
+    /// Base class representing a person with common contact and identity fields.
+    /// Used as a base for Patient and Doctor models.
+    /// </summary>
     public class Person
     {
         // Campos privados
@@ -71,9 +75,10 @@ namespace Hospital_Test_Performance.Models
             }
         }
 
-        /// <summary>
-        /// National ID / Document number (optional). Ej: passport, DNI, SSN, etc.
-        /// </summary>
+    /// <summary>
+    /// National ID / Document number (required for registrations in this app).
+    /// Examples: passport, DNI, SSN, etc.
+    /// </summary>
         public string DocumentNumber
         {
             get { return _documentNumber; }
@@ -85,7 +90,7 @@ namespace Hospital_Test_Performance.Models
         }
 
         /// <summary>
-        /// Optional constructor to initialize a Person with common fields.
+        /// Constructor initializing a Person with common fields.
         /// </summary>
         public Person(int id, string name, DateTime dateOfBirth, string phone, string address, string email = "", string documentNumber = "")
         {

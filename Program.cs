@@ -3,8 +3,10 @@ using Hospital_Test_Performance.Database;
 using Hospital_Test_Performance.Service;
 
 var db = new DatabaseContent();
-var patientManager = new Hospital_Test_Performance.Service.PatientManager(db);
-var doctorManager = new Hospital_Test_Performance.Service.DoctorManager(db);
+var patientRepo = new Hospital_Test_Performance.Repository.PatientRepository(db);
+var patientManager = new Hospital_Test_Performance.Service.PatientManager(patientRepo);
+var doctorRepo = new Hospital_Test_Performance.Repository.DoctorRepository(db);
+var doctorManager = new Hospital_Test_Performance.Service.DoctorManager(doctorRepo);
 var appointmentManager = new Hospital_Test_Performance.Service.AppointmentManager(db);
 
 bool exit = false;

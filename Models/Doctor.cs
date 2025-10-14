@@ -10,9 +10,11 @@ namespace Hospital_Test_Performance.Models
     /// </summary>
     public class Doctor : Person, Hospital_Test_Performance.Interface.IRegistable
     {
-        public string Specialty { get; set; } = string.Empty;
+    /// <summary>Medical specialty (required).</summary>
+    public string Specialty { get; set; } = string.Empty;
 
-        public string LicenseNumber { get; set; } = string.Empty;
+    /// <summary>Professional license or registration number (required).</summary>
+    public string LicenseNumber { get; set; } = string.Empty;
 
         public string Department { get; set; } = string.Empty;
 

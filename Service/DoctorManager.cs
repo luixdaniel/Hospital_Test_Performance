@@ -4,17 +4,22 @@ using Hospital_Test_Performance.Models;
 
 namespace Hospital_Test_Performance.Service
 {
+    /// <summary>
+    /// Service class that handles doctor-related user flows and validations.
+    /// Uses a repository for persistence operations.
+    /// </summary>
     public class DoctorManager
     {
-        private readonly DatabaseContent _db;
+        private readonly Hospital_Test_Performance.Interface.IRepository<Doctor> _repo;
 
-        public DoctorManager(DatabaseContent db)
+        public DoctorManager(Hospital_Test_Performance.Interface.IRepository<Doctor> repo)
         {
-            _db = db;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        public void RegistrarDoctor()
-        {
+    /// <summary>Interactively register a new doctor (reads from Console, validates and persists).</summary>
+    public void RegistrarDoctor()
+    {
             try
             {
             Console.Write("Name: ");
@@ -93,10 +98,10 @@ namespace Hospital_Test_Performance.Service
                     Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Document is required. Please enter a document number.");
                     continue;
                 }
-                if (_db.Doctors.Exists(x => x.DocumentNumber.Equals(document, StringComparison.OrdinalIgnoreCase)))
+                if (_repo.GetByDocument(document) != null)
                 {
                     Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Cannot register doctor. Document '{document}' already exists.");
-                    var existing = _db.Doctors.Find(x => x.DocumentNumber.Equals(document, StringComparison.OrdinalIgnoreCase));
+                    var existing = _repo.GetByDocument(document);
                     if (existing != null) Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Existing doctor: {existing.Id}: {existing.Name} - {existing.Specialty} - Doc: {existing.DocumentNumber}");
                     continue;
                 }
@@ -107,7 +112,7 @@ namespace Hospital_Test_Performance.Service
             {
                 DocumentNumber = document ?? string.Empty
             };
-            d.Registrar(_db);
+            _repo.Add(d);
             }
             catch (Exception ex)
             {
@@ -115,15 +120,18 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void ListarDoctores(string? specialtyFilter = null)
-        {
+    /// <summary>List doctors, optionally filtered by specialty.</summary>
+    /// <param name="specialtyFilter">Optional substring to filter specialty.</param>
+    public void ListarDoctores(string? specialtyFilter = null)
+    {
             try
             {
+            var all = _repo.GetAll();
             var list = string.IsNullOrWhiteSpace(specialtyFilter)
-                ? _db.Doctors
-                : _db.Doctors.FindAll(d => !string.IsNullOrWhiteSpace(d.Specialty) && d.Specialty.Contains(specialtyFilter, StringComparison.OrdinalIgnoreCase));
+                ? all
+                : all.Where(d => !string.IsNullOrWhiteSpace(d.Specialty) && d.Specialty.Contains(specialtyFilter, StringComparison.OrdinalIgnoreCase));
 
-            if (list.Count == 0)
+            if (!list.Any())
             {
                 Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("No doctors found for the given filter.");
                 return;
@@ -140,8 +148,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void FindByDocument(string documentNumber)
-        {
+    /// <summary>Find a doctor by document number and print details to the console.</summary>
+    /// <param name="documentNumber">Document number to search for.</param>
+    public void FindByDocument(string documentNumber)
+    {
             try
             {
             if (string.IsNullOrWhiteSpace(documentNumber))
@@ -150,7 +160,7 @@ namespace Hospital_Test_Performance.Service
                 return;
             }
 
-            var d = _db.Doctors.Find(x => x.DocumentNumber.Equals(documentNumber, StringComparison.OrdinalIgnoreCase));
+            var d = _repo.GetByDocument(documentNumber);
             if (d == null) Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Doctor not found");
             else Console.WriteLine($"{d.Id}: {d.Name} - {d.Specialty} - Doc: {d.DocumentNumber}");
             }
@@ -160,8 +170,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void DeleteByDocument(string documentNumber)
-        {
+    /// <summary>Delete a doctor by document number.</summary>
+    /// <param name="documentNumber">Document number of the doctor to delete.</param>
+    public void DeleteByDocument(string documentNumber)
+    {
             try
             {
             if (string.IsNullOrWhiteSpace(documentNumber))
@@ -170,9 +182,11 @@ namespace Hospital_Test_Performance.Service
                 return;
             }
 
-            var d = _db.Doctors.Find(x => x.DocumentNumber.Equals(documentNumber, StringComparison.OrdinalIgnoreCase));
-            if (d != null) _db.Doctors.Remove(d);
-            Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Doctor with document {documentNumber} deleted (if existed).");
+            var removed = _repo.DeleteByDocument(documentNumber);
+            if (removed)
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Doctor with document {documentNumber} deleted.");
+            else
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Doctor with document {documentNumber} not found.");
             }
             catch (Exception ex)
             {
@@ -180,8 +194,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void UpdateByDocument(string documentNumber)
-        {
+    /// <summary>Update a doctor's details by their document number (interactive).</summary>
+    /// <param name="documentNumber">Document number of the doctor to update.</param>
+    public void UpdateByDocument(string documentNumber)
+    {
             try
             {
             if (string.IsNullOrWhiteSpace(documentNumber))
@@ -190,7 +206,7 @@ namespace Hospital_Test_Performance.Service
                 return;
             }
 
-            var d = _db.Doctors.Find(x => x.DocumentNumber.Equals(documentNumber, StringComparison.OrdinalIgnoreCase));
+            var d = _repo.GetByDocument(documentNumber);
             if (d == null)
             {
                 Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Doctor not found");
@@ -258,10 +274,10 @@ namespace Hospital_Test_Performance.Service
             var newDoc = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(newDoc))
             {
-                if (_db.Doctors.Exists(x => x.DocumentNumber.Equals(newDoc, StringComparison.OrdinalIgnoreCase) && x.Id != d.Id))
+                if (_repo.GetByDocument(newDoc) != null && _repo.GetByDocument(newDoc)?.Id != d.Id)
                 {
                     Console.WriteLine($"Cannot change document. Document '{newDoc}' already exists.");
-                    var existing = _db.Doctors.Find(x => x.DocumentNumber.Equals(newDoc, StringComparison.OrdinalIgnoreCase));
+                    var existing = _repo.GetByDocument(newDoc);
                     if (existing != null) Console.WriteLine($"Existing doctor: {existing.Id}: {existing.Name} - {existing.Specialty} - Doc: {existing.DocumentNumber}");
                 }
                 else

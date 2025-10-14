@@ -5,6 +5,10 @@ using Hospital_Test_Performance.Models;
 
 namespace Hospital_Test_Performance.Service
 {
+    /// <summary>
+    /// Manages appointment scheduling, listing and status transitions.
+    /// Uses the in-memory DatabaseContent for storage in this demo.
+    /// </summary>
     public class AppointmentManager
     {
         private readonly DatabaseContent _db;
@@ -14,8 +18,9 @@ namespace Hospital_Test_Performance.Service
             _db = db;
         }
 
-        public void ScheduleAppointment()
-        {
+    /// <summary>Interactively schedule a new appointment between patient and doctor.</summary>
+    public void ScheduleAppointment()
+    {
             try
             {
             Console.Write("Patient document: ");
@@ -84,8 +89,9 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void ListAppointments()
-        {
+    /// <summary>List all appointments with linked patient and doctor names when available.</summary>
+    public void ListAppointments()
+    {
             try
             {
             if (_db.Appointments.Count == 0)
@@ -107,8 +113,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void MarkAttended(int appointmentId)
-        {
+    /// <summary>Mark the appointment as attended by id.</summary>
+    /// <param name="appointmentId">Appointment identifier.</param>
+    public void MarkAttended(int appointmentId)
+    {
             try
             {
             var a = _db.Appointments.Find(x => x.Id == appointmentId);
@@ -134,8 +142,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void MarkCancelled(int appointmentId)
-        {
+    /// <summary>Mark the appointment as cancelled by id.</summary>
+    /// <param name="appointmentId">Appointment identifier.</param>
+    public void MarkCancelled(int appointmentId)
+    {
             try
             {
             var a = _db.Appointments.Find(x => x.Id == appointmentId);
@@ -153,8 +163,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void MarkPending(int appointmentId)
-        {
+    /// <summary>Reset the appointment status to pending by id.</summary>
+    /// <param name="appointmentId">Appointment identifier.</param>
+    public void MarkPending(int appointmentId)
+    {
             try
             {
             var a = _db.Appointments.Find(x => x.Id == appointmentId);

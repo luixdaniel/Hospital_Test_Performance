@@ -7,6 +7,10 @@ namespace Hospital_Test_Performance.Utils
 {
     public class ConsoleHelper
     {
+            /// <summary>
+            /// Small helper to print colored success and error messages to the console.
+            /// Keeps UI output consistent across managers and repositories.
+            /// </summary>
             public static void WriteError(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;

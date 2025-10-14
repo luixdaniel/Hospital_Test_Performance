@@ -8,7 +8,10 @@ namespace Hospital_Test_Performance.Models
     /// <summary>
     /// Represents a patient in the hospital. Inherits common person fields from Person.
     /// </summary>
-    public class Patient : Person, Hospital_Test_Performance.Interface.IRegistable
+        /// <summary>
+        /// Patient model derived from Person. Holds patient-specific data and behaviors.
+        /// </summary>
+        public class Patient : Person
     {
         /// <summary>Medical record number or identifier for the patient.</summary>
         public string MedicalRecordNumber { get; set; } = string.Empty;

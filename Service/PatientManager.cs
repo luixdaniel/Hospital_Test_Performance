@@ -5,17 +5,22 @@ using Hospital_Test_Performance.Models;
 
 namespace Hospital_Test_Performance.Service
 {
+    /// <summary>
+    /// Service class that handles patient-related user flows and validations.
+    /// Uses a repository for persistence operations.
+    /// </summary>
     public class PatientManager
     {
-        private readonly DatabaseContent _db;
+        private readonly Hospital_Test_Performance.Interface.IRepository<Patient> _repo;
 
-        public PatientManager(DatabaseContent db)
+        public PatientManager(Hospital_Test_Performance.Interface.IRepository<Patient> repo)
         {
-            _db = db;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
-        public void RegistrarCliente()
-        {
+    /// <summary>Interactively register a new patient (reads from Console, validates and persists).</summary>
+    public void RegistrarCliente()
+    {
             try
             {
             Console.Write("Name: ");
@@ -70,11 +75,11 @@ namespace Hospital_Test_Performance.Service
                     Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Document is required. Please enter a document number.");
                     continue;
                 }
-                // uniqueness check
-                if (_db.Patients.Exists(x => x.DocumentNumber.Equals(document, StringComparison.OrdinalIgnoreCase)))
+                // uniqueness check via repo
+                if (_repo.GetByDocument(document) != null)
                 {
                     Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Cannot register patient. Document '{document}' already exists.");
-                    var existing = _db.Patients.Find(x => x.DocumentNumber.Equals(document, StringComparison.OrdinalIgnoreCase));
+                    var existing = _repo.GetByDocument(document);
                     if (existing != null)
                     {
                         Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Existing patient: {existing.Id}: {existing.Name} - {existing.Email} - Doc: {existing.DocumentNumber}");
@@ -86,7 +91,8 @@ namespace Hospital_Test_Performance.Service
             }
 
             var p = new Patient { Name = name ?? string.Empty, DateOfBirth = dob, Telefono = phone ?? string.Empty, Address = address ?? string.Empty, Email = email ?? string.Empty, DocumentNumber = document ?? string.Empty };
-            p.Registrar(_db);
+            // persist via repository
+            _repo.Add(p);
             }
             catch (Exception ex)
             {
@@ -94,11 +100,12 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void ListarClientes()
-        {
+    /// <summary>List all patients to the console.</summary>
+    public void ListarClientes()
+    {
             try
             {
-            foreach (var p in _db.Patients)
+            foreach (var p in _repo.GetAll())
             {
                 Console.WriteLine($"{p.Id}: {p.Name} - {p.Email} - Doc: {p.DocumentNumber}");
             }
@@ -108,8 +115,10 @@ namespace Hospital_Test_Performance.Service
                 Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Error listing patients: {ex.Message}");
             }
         }
-        public void FindByDocument(string documentNumber)
-        {
+    /// <summary>Find a patient by document number and print details to the console.</summary>
+    /// <param name="documentNumber">Document number to search for.</param>
+    public void FindByDocument(string documentNumber)
+    {
             try
             {
             if (string.IsNullOrWhiteSpace(documentNumber))
@@ -118,7 +127,7 @@ namespace Hospital_Test_Performance.Service
                 return;
             }
 
-            var p = _db.Patients.Find(x => x.DocumentNumber.Equals(documentNumber, StringComparison.OrdinalIgnoreCase));
+            var p = _repo.GetByDocument(documentNumber);
             if (p == null) Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Patient not found");
             else Console.WriteLine($"{p.Id}: {p.Name} - {p.Email} - Doc: {p.DocumentNumber}");
             }
@@ -128,8 +137,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void DeleteByDocument(string documentNumber)
-        {
+    /// <summary>Delete a patient identified by document number.</summary>
+    /// <param name="documentNumber">Document number of the patient to delete.</param>
+    public void DeleteByDocument(string documentNumber)
+    {
             try
             {
             if (string.IsNullOrWhiteSpace(documentNumber))
@@ -138,9 +149,11 @@ namespace Hospital_Test_Performance.Service
                 return;
             }
 
-            var p = _db.Patients.Find(x => x.DocumentNumber.Equals(documentNumber, StringComparison.OrdinalIgnoreCase));
-            if (p != null) _db.Patients.Remove(p);
-            Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Patient with document {documentNumber} deleted (if existed).");
+            var removed = _repo.DeleteByDocument(documentNumber);
+            if (removed)
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Patient with document {documentNumber} deleted.");
+            else
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Patient with document {documentNumber} not found.");
             }
             catch (Exception ex)
             {
@@ -148,8 +161,10 @@ namespace Hospital_Test_Performance.Service
             }
         }
 
-        public void UpdateByDocument(string documentNumber)
-        {
+    /// <summary>Update a patient's details by their document number (interactive).</summary>
+    /// <param name="documentNumber">Document number of the patient to update.</param>
+    public void UpdateByDocument(string documentNumber)
+    {
             try
             {
             if (string.IsNullOrWhiteSpace(documentNumber))
@@ -158,7 +173,7 @@ namespace Hospital_Test_Performance.Service
                 return;
             }
 
-            var p = _db.Patients.Find(x => x.DocumentNumber.Equals(documentNumber, StringComparison.OrdinalIgnoreCase));
+            var p = _repo.GetByDocument(documentNumber);
             if (p == null)
             {
                 Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Patient not found");
@@ -215,10 +230,10 @@ namespace Hospital_Test_Performance.Service
             if (!string.IsNullOrWhiteSpace(newDoc))
             {
                 // check uniqueness
-                if (_db.Patients.Exists(x => x.DocumentNumber.Equals(newDoc, StringComparison.OrdinalIgnoreCase) && x.Id != p.Id))
+                if (_repo.GetByDocument(newDoc) != null && _repo.GetByDocument(newDoc)?.Id != p.Id)
                 {
                     Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Cannot change document. Document '{newDoc}' already exists.");
-                    var existing = _db.Patients.Find(x => x.DocumentNumber.Equals(newDoc, StringComparison.OrdinalIgnoreCase));
+                    var existing = _repo.GetByDocument(newDoc);
                     if (existing != null) Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Existing patient: {existing.Id}: {existing.Name} - {existing.Email} - Doc: {existing.DocumentNumber}");
                 }
                 else
@@ -231,6 +246,8 @@ namespace Hospital_Test_Performance.Service
             if (!string.IsNullOrWhiteSpace(address)) p.Address = address;
             if (!string.IsNullOrWhiteSpace(email)) p.Email = email;
 
+            // persist changes
+            _repo.Update(p);
             Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess("Patient updated.");
             }
             catch (Exception ex)

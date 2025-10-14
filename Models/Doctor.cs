@@ -44,11 +44,11 @@ namespace Hospital_Test_Performance.Models
                 var exists = db.Doctors.Exists(x => x.DocumentNumber.Equals(DocumentNumber, StringComparison.OrdinalIgnoreCase) && x.Id != this.Id);
                 if (exists)
                 {
-                    Console.WriteLine($"Cannot register doctor. Document '{DocumentNumber}' already exists.");
+                    Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Cannot register doctor. Document '{DocumentNumber}' already exists.");
                     var existing = db.Doctors.Find(x => x.DocumentNumber.Equals(DocumentNumber, StringComparison.OrdinalIgnoreCase));
                     if (existing != null)
                     {
-                        Console.WriteLine($"Existing doctor: {existing.Id}: {existing.Name} - {existing.Specialty} - Doc: {existing.DocumentNumber}");
+                        Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Existing doctor: {existing.Id}: {existing.Name} - {existing.Specialty} - Doc: {existing.DocumentNumber}");
                     }
                     return;
                 }
@@ -59,7 +59,7 @@ namespace Hospital_Test_Performance.Models
                 Id = db.Doctors.Count > 0 ? db.Doctors[^1].Id + 1 : 1;
             }
             db.Doctors.Add(this);
-            Console.WriteLine($"Doctor {Name} registered with ID {Id}.");
+            Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Doctor {Name} registered with ID {Id}.");
         }
     }
 }

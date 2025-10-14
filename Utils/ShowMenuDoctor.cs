@@ -15,11 +15,12 @@ namespace Hospital_Test_Performance.Utils
                 Console.Clear();
                 Console.WriteLine("Doctor Management Menu:");
                 Console.WriteLine("1. Register a new doctor");
-                Console.WriteLine("2. View doctor details");
-                Console.WriteLine("3. Search doctor by Document Number");
-                Console.WriteLine("4. Update doctor information");
-                Console.WriteLine("5. Delete a doctor record");
-                Console.WriteLine("6. Back to main menu");
+                Console.WriteLine("2. List all doctors");
+                Console.WriteLine("3. List doctors by specialty");
+                Console.WriteLine("4. Search doctor by Document Number");
+                Console.WriteLine("5. Update doctor information");
+                Console.WriteLine("6. Delete a doctor record");
+                Console.WriteLine("7. Back to main menu");
                 Console.Write("Select an option: ");
 
                 var option = Console.ReadLine();
@@ -32,21 +33,26 @@ namespace Hospital_Test_Performance.Utils
                         manager.ListarDoctores();
                         break;
                     case "3":
+                        Console.Write("Enter specialty to filter by: ");
+                        var spec = Console.ReadLine();
+                        manager.ListarDoctores(spec);
+                        break;
+                    case "4":
                         Console.Write("Enter document number: ");
                         var doc = Console.ReadLine();
                         manager.FindByDocument(doc ?? string.Empty);
                         break;
-                    case "4":
+                    case "5":
                         Console.Write("Enter document number to update: ");
                         var docUpdate = Console.ReadLine();
                         manager.UpdateByDocument(docUpdate ?? string.Empty);
                         break;
-                    case "5":
+                    case "6":
                         Console.Write("Enter document number to delete: ");
                         var docDel = Console.ReadLine();
                         manager.DeleteByDocument(docDel ?? string.Empty);
                         break;
-                    case "6":
+                    case "7":
                         back = true;
                         continue;
                     default:

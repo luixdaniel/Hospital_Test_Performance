@@ -7,7 +7,7 @@ namespace Hospital_Test_Performance.Utils
 {
     public class ShowMenuAppointment
     {
-        public static void DisplayMenuAppointment()
+    public static void DisplayMenuAppointment(Hospital_Test_Performance.Service.AppointmentManager manager)
         {
             Console.Clear();
             Console.WriteLine("Appointment Management Menu:");
@@ -24,28 +24,35 @@ namespace Hospital_Test_Performance.Utils
                     Console.WriteLine("Appointment Management Menu:");
                     Console.WriteLine("1. Schedule a new appointment");
                     Console.WriteLine("2. View appointment details");
-                    Console.WriteLine("3. Update appointment information");
-                    Console.WriteLine("4. Cancel an appointment");
-                    Console.WriteLine("5. Back to main menu");
+                    Console.WriteLine("3. Mark appointment as Attended");
+                    Console.WriteLine("4. Mark appointment as Cancelled");
+                    Console.WriteLine("5. Mark appointment as Pending");
+                    Console.WriteLine("6. Back to main menu");
                     Console.Write("Select an option: ");
 
                     var option = Console.ReadLine();
                     switch (option)
                     {
                         case "1":
-                            Console.WriteLine("[Placeholder] Scheduling a new appointment...");
+                            manager.ScheduleAppointment();
                             // TODO: call appointment scheduling logic
                             break;
                         case "2":
-                            Console.WriteLine("[Placeholder] Showing appointment details...");
+                            manager.ListAppointments();
                             break;
                         case "3":
-                            Console.WriteLine("[Placeholder] Updating appointment...");
+                            Console.Write("Enter appointment ID to mark as Attended: ");
+                            if (int.TryParse(Console.ReadLine(), out var idA)) manager.MarkAttended(idA);
                             break;
                         case "4":
-                            Console.WriteLine("[Placeholder] Cancelling appointment...");
+                            Console.Write("Enter appointment ID to mark as Cancelled: ");
+                            if (int.TryParse(Console.ReadLine(), out var idC)) manager.MarkCancelled(idC);
                             break;
                         case "5":
+                            Console.Write("Enter appointment ID to mark as Pending: ");
+                            if (int.TryParse(Console.ReadLine(), out var idP)) manager.MarkPending(idP);
+                            break;
+                        case "6":
                             back = true;
                             continue;
                         default:

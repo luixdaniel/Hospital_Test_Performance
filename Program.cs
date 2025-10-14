@@ -5,6 +5,7 @@ using Hospital_Test_Performance.Service;
 var db = new DatabaseContent();
 var patientManager = new Hospital_Test_Performance.Service.PatientManager(db);
 var doctorManager = new Hospital_Test_Performance.Service.DoctorManager(db);
+var appointmentManager = new Hospital_Test_Performance.Service.AppointmentManager(db);
 
 bool exit = false;
 while (!exit)
@@ -14,13 +15,34 @@ while (!exit)
     switch (choice)
     {
         case "1":
-            ShowMenuPatient.DisplayMenuPatient(patientManager);
+            try
+            {
+                ShowMenuPatient.DisplayMenuPatient(patientManager);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in patient menu: {ex.Message}");
+            }
             break;
         case "2":
-            ShowMenuDoctor.DisplayMenuDoctor(doctorManager);
+            try
+            {
+                ShowMenuDoctor.DisplayMenuDoctor(doctorManager);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in doctor menu: {ex.Message}");
+            }
             break;
         case "3":
-            ShowMenuAppointment.DisplayMenuAppointment();
+            try
+            {
+                ShowMenuAppointment.DisplayMenuAppointment(appointmentManager);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in appointment menu: {ex.Message}");
+            }
             break;
         case "4":
             exit = true;

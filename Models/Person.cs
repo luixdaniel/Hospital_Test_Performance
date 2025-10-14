@@ -69,5 +69,25 @@ namespace Hospital_Test_Performance.Models
                     _email = value;
             }
         }
+
+        /// <summary>
+        /// Optional constructor to initialize a Person with common fields.
+        /// </summary>
+        public Person(int id, string name, DateTime dateOfBirth, string phone, string address, string email = "")
+        {
+            Id = id;
+            Name = name;
+            DateOfBirth = dateOfBirth;
+            Telefono = phone;
+            Address = address;
+            Email = email;
+        }
+
+        /// <summary>
+        /// Parameterless constructor kept for compatibility.
+        /// </summary>
+        public Person()
+        {
+        }
     }
 }

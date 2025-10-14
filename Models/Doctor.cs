@@ -8,7 +8,7 @@ namespace Hospital_Test_Performance.Models
     /// <summary>
     /// Represents a doctor in the hospital and inherits common person fields from Person.
     /// </summary>
-    public class Doctor : Person
+    public class Doctor : Person, Hospital_Test_Performance.Interface.IRegistable
     {
         public string Specialty { get; set; } = string.Empty;
 
@@ -32,6 +32,17 @@ namespace Hospital_Test_Performance.Models
         public override string ToString()
         {
             return $"Dr. {Name} ({Specialty}) - License: {LicenseNumber}";
+        }
+
+        public void Registrar(Hospital_Test_Performance.Database.DatabaseContent db)
+        {
+            if (db == null) throw new ArgumentNullException(nameof(db));
+            if (Id == 0)
+            {
+                Id = db.Doctors.Count > 0 ? db.Doctors[^1].Id + 1 : 1;
+            }
+            db.Doctors.Add(this);
+            Console.WriteLine($"Doctor {Name} registrado con ID {Id}.");
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Hospital_Test_Performance.Models
     /// <summary>
     /// Represents a patient in the hospital. Inherits common person fields from Person.
     /// </summary>
-    public class Patient : Person
+    public class Patient : Person, Hospital_Test_Performance.Interface.IRegistable
     {
         /// <summary>Medical record number or identifier for the patient.</summary>
         public string MedicalRecordNumber { get; set; } = string.Empty;
@@ -36,6 +36,17 @@ namespace Hospital_Test_Performance.Models
 
             MedicalRecordNumber = medicalRecordNumber;
             AdmissionDate = admissionDate;
+        }
+
+        public void Registrar(Hospital_Test_Performance.Database.DatabaseContent db)
+        {
+            if (db == null) throw new ArgumentNullException(nameof(db));
+            if (Id == 0)
+            {
+                Id = db.Patients.Count > 0 ? db.Patients[^1].Id + 1 : 1;
+            }
+            db.Patients.Add(this);
+            Console.WriteLine($"Paciente {Name} registrado con ID {Id}.");
         }
     }
 }

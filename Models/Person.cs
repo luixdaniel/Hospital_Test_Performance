@@ -9,6 +9,7 @@ namespace Hospital_Test_Performance.Models
         private string _phone = string.Empty;
         private string _address = string.Empty;
         private string _email = string.Empty;
+        private string _documentNumber = string.Empty;
         // Propiedades públicas que exponen los campos
         public int Id
         {
@@ -71,9 +72,22 @@ namespace Hospital_Test_Performance.Models
         }
 
         /// <summary>
+        /// National ID / Document number (optional). Ej: passport, DNI, SSN, etc.
+        /// </summary>
+        public string DocumentNumber
+        {
+            get { return _documentNumber; }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    _documentNumber = value;
+            }
+        }
+
+        /// <summary>
         /// Optional constructor to initialize a Person with common fields.
         /// </summary>
-        public Person(int id, string name, DateTime dateOfBirth, string phone, string address, string email = "")
+        public Person(int id, string name, DateTime dateOfBirth, string phone, string address, string email = "", string documentNumber = "")
         {
             Id = id;
             Name = name;
@@ -81,6 +95,7 @@ namespace Hospital_Test_Performance.Models
             Telefono = phone;
             Address = address;
             Email = email;
+            DocumentNumber = documentNumber;
         }
 
         /// <summary>

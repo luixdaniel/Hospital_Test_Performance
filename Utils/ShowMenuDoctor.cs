@@ -7,7 +7,7 @@ namespace Hospital_Test_Performance.Utils
 {
     public class ShowMenuDoctor
     {
-        public static void DisplayMenuDoctor()
+        public static void DisplayMenuDoctor(Hospital_Test_Performance.Service.DoctorManager manager)
         {
             bool back = false;
             while (!back)
@@ -25,11 +25,10 @@ namespace Hospital_Test_Performance.Utils
                 switch (option)
                 {
                     case "1":
-                        Console.WriteLine("[Placeholder] Registering a new doctor...");
-                        // TODO: call doctor registration logic
+                        manager.RegistrarDoctor();
                         break;
                     case "2":
-                        Console.WriteLine("[Placeholder] Showing doctor details...");
+                        manager.ListarDoctores();
                         break;
                     case "3":
                         Console.WriteLine("[Placeholder] Updating doctor information...");

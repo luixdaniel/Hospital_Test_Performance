@@ -1,4 +1,10 @@
 ﻿using Hospital_Test_Performance.Utils;
+using Hospital_Test_Performance.Database;
+using Hospital_Test_Performance.Service;
+
+var db = new DatabaseContent();
+var patientManager = new Hospital_Test_Performance.Service.PatientManager(db);
+var doctorManager = new Hospital_Test_Performance.Service.DoctorManager(db);
 
 bool exit = false;
 while (!exit)
@@ -8,10 +14,10 @@ while (!exit)
     switch (choice)
     {
         case "1":
-            ShowMenuPatient.DisplayMenuPatient();
+            ShowMenuPatient.DisplayMenuPatient(patientManager);
             break;
         case "2":
-            ShowMenuDoctor.DisplayMenuDoctor();
+            ShowMenuDoctor.DisplayMenuDoctor(doctorManager);
             break;
         case "3":
             ShowMenuAppointment.DisplayMenuAppointment();

@@ -41,12 +41,29 @@ namespace Hospital_Test_Performance.Models
         public void Registrar(Hospital_Test_Performance.Database.DatabaseContent db)
         {
             if (db == null) throw new ArgumentNullException(nameof(db));
+
+            // If document number provided, ensure uniqueness
+            if (!string.IsNullOrWhiteSpace(DocumentNumber))
+            {
+                var exists = db.Patients.Exists(x => x.DocumentNumber.Equals(DocumentNumber, StringComparison.OrdinalIgnoreCase) && x.Id != this.Id);
+                if (exists)
+                {
+                    Console.WriteLine($"Cannot register patient. Document '{DocumentNumber}' already exists.");
+                    var existing = db.Patients.Find(x => x.DocumentNumber.Equals(DocumentNumber, StringComparison.OrdinalIgnoreCase));
+                    if (existing != null)
+                    {
+                        Console.WriteLine($"Existing patient: {existing.Id}: {existing.Name} - {existing.Email} - Doc: {existing.DocumentNumber}");
+                    }
+                    return;
+                }
+            }
+
             if (Id == 0)
             {
                 Id = db.Patients.Count > 0 ? db.Patients[^1].Id + 1 : 1;
             }
             db.Patients.Add(this);
-            Console.WriteLine($"Paciente {Name} registrado con ID {Id}.");
+            Console.WriteLine($"Patient {Name} registered with ID {Id}.");
         }
     }
 }

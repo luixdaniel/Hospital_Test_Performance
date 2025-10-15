@@ -16,14 +16,16 @@ namespace Hospital_Test_Performance.Database
         public List<Models.Doctor> Doctors { get; set; }
 
     public List<Models.Appointment> Appointments { get; set; }
+    // History of sent or attempted emails
+    public List<Models.EmailRecord> EmailHistory { get; set; }
 
         public DatabaseContent()
         {
             Patients = new List<Models.Patient>
             {
                 // Seed some demo patients
-                new Models.Patient { Id = 1, Name = "Juan Perez", DateOfBirth = new DateTime(1985,5,12), Telefono = "5551234", Address = "Calle Falsa 123", Email = "juan.perez@example.com", DocumentNumber = "12345678" },
-                new Models.Patient { Id = 2, Name = "María Gómez", DateOfBirth = new DateTime(1990,8,3), Telefono = "5555678", Address = "Avenida Siempreviva 742", Email = "maria.gomez@example.com", DocumentNumber = "87654321" }
+                new Models.Patient { Id = 1, Name = "Juan Perez", DateOfBirth = new DateTime(1985,5,12), Telefono = "5551234", Address = "Calle Falsa 123", Email = "ceraluis4@gmail.com", DocumentNumber = "12345678" },
+                new Models.Patient { Id = 2, Name = "María Gómez", DateOfBirth = new DateTime(1990,8,3), Telefono = "5555678", Address = "Avenida Siempreviva 742", Email = "ceraluis4@gmail.com", DocumentNumber = "87654321" }
             };
 
             Doctors = new List<Models.Doctor>
@@ -41,6 +43,8 @@ namespace Hospital_Test_Performance.Database
                 new Models.Appointment { Id = 2, PatientDocument = "87654321", DoctorDocument = "0001", AppointmentDate = new DateTime(2025,10,16,9,0,0), Notes = "Second seeded appointment" },
                 new Models.Appointment { Id = 3, PatientDocument = "12345678", DoctorDocument = "0003", AppointmentDate = new DateTime(2025,10,17,14,0,0), Notes = "Third seeded appointment" }
             };
+
+            EmailHistory = new List<Models.EmailRecord>();
         }
     }
 }

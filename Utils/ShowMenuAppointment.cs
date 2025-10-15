@@ -27,7 +27,9 @@ namespace Hospital_Test_Performance.Utils
                     Console.WriteLine("3. Mark appointment as Attended");
                     Console.WriteLine("4. Mark appointment as Cancelled");
                     Console.WriteLine("5. Mark appointment as Pending");
-                    Console.WriteLine("6. Back to main menu");
+                    Console.WriteLine("6. List email history");
+                    Console.WriteLine("7. Retry email send by id");
+                    Console.WriteLine("8. Back to main menu");
                     Console.Write("Select an option: ");
 
                     var option = Console.ReadLine();
@@ -53,6 +55,13 @@ namespace Hospital_Test_Performance.Utils
                             if (int.TryParse(Console.ReadLine(), out var idP)) manager.MarkPending(idP);
                             break;
                         case "6":
+                            manager.ListEmailHistory();
+                            break;
+                        case "7":
+                            Console.Write("Enter email record ID to retry: ");
+                            if (int.TryParse(Console.ReadLine(), out var emailId)) manager.RetryEmail(emailId);
+                            break;
+                        case "8":
                             back = true;
                             continue;
                         default:

@@ -12,10 +12,12 @@ namespace Hospital_Test_Performance.Service
     public class AppointmentManager
     {
         private readonly DatabaseContent _db;
+        private readonly Hospital_Test_Performance.Utils.EmailService _emailService;
 
-        public AppointmentManager(DatabaseContent db)
+        public AppointmentManager(DatabaseContent db, Hospital_Test_Performance.Utils.EmailService emailService)
         {
             _db = db;
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
 
     /// <summary>Interactively schedule a new appointment between patient and doctor.</summary>
@@ -81,7 +83,18 @@ namespace Hospital_Test_Performance.Service
             };
 
             _db.Appointments.Add(appt);
-            Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Appointment scheduled (ID: {appt.Id}) on {appt.AppointmentDate:yyyy-MM-dd HH:mm}");
+
+            // Build confirmation email
+            var patient = _db.Patients.Find(p => p.DocumentNumber.Equals(patientDoc, StringComparison.OrdinalIgnoreCase));
+            var to = patient?.Email ?? patientDoc; // fallback to document if no email available
+            var subject = $"Appointment confirmation (ID: {appt.Id})";
+            var body = $"Dear {(patient?.Name ?? "Patient")},\n\nYour appointment is scheduled on {appt.AppointmentDate:yyyy-MM-dd HH:mm} with doctor {doctorDoc}.\nAppointment ID: {appt.Id}\n\nThanks.";
+
+            var sent = _emailService.SendEmail(to, subject, body, from: "noreply@hospital.example", appointmentId: appt.Id);
+            if (sent)
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Appointment scheduled (ID: {appt.Id}) and confirmation email sent to {to}.");
+            else
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Appointment scheduled (ID: {appt.Id}) but confirmation email failed to send. Check EmailHistory.");
             }
             catch (Exception ex)
             {
@@ -181,6 +194,54 @@ namespace Hospital_Test_Performance.Service
             catch (Exception ex)
             {
                 Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Error marking appointment pending: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// List email sending history recorded in the in-memory database.
+        /// </summary>
+        public void ListEmailHistory()
+        {
+            try
+            {
+            if (_db.EmailHistory.Count == 0)
+            {
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("No email history available.");
+                return;
+            }
+
+            foreach (var e in _db.EmailHistory)
+            {
+                Console.WriteLine($"{e.Id}: OriginalTo={e.OriginalTo} FinalTo={e.FinalTo} Subject={e.Subject} Sent={e.Sent} Time={e.Timestamp:u} AppointmentId={e.AppointmentId} Error={e.ErrorMessage} Detail={e.ErrorDetail}");
+            }
+            }
+            catch (Exception ex)
+            {
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Error listing email history: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Retry sending an email by EmailRecord id. The EmailService will append a new record with the retry result.
+        /// </summary>
+        public void RetryEmail(int emailRecordId)
+        {
+            try
+            {
+            var rec = _db.EmailHistory.Find(x => x.Id == emailRecordId);
+            if (rec == null)
+            {
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError("Email record not found");
+                return;
+            }
+
+            var sent = _emailService.SendEmail(rec.OriginalTo, rec.Subject, rec.Body, rec.From, rec.AppointmentId);
+            if (sent) Hospital_Test_Performance.Utils.ConsoleHelper.WriteSuccess($"Retry: email id {emailRecordId} sent successfully (new record appended).");
+            else Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Retry: sending email id {emailRecordId} failed. Check EmailHistory for details.");
+            }
+            catch (Exception ex)
+            {
+                Hospital_Test_Performance.Utils.ConsoleHelper.WriteError($"Error retrying email: {ex.Message}");
             }
         }
     }
